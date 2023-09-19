@@ -1,0 +1,7 @@
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut))
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut,y = ..prop..,group = 1))
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut,fill = cut))
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut,color = cut))
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut,color = cut))
+ggplot(data = diamonds) + geom_bar(mapping = aes(x = cut,fill = clarity),position = "dodge")
+ggplot(data = diamonds) + stat_summary(mapping = aes(x=cut,y=depth))

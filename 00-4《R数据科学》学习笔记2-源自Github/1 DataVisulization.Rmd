@@ -1,0 +1,423 @@
+---
+title: "数据可视化"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+# 目录
++ 1 前提准备
++ 2 初识`ggplot2`
+    + 2.1 `mpg` 数据集
+    + 2.2 绘制一幅 `ggplot`
+    + 2.3 `ggplot2` 绘图模板
++ 3 映射图形属性（`aesthetic`）
+    + 3.1 用 `aes()` 连接图形属性与变量名
+    + 3.2 人工设置图形属性
++ 4 分面
++ 5 几何对象
+    + 5.1 散点图、smooth图
+    + 5.2 在同一分面内，对不同类型的数据分别绘制图形
+    + 5.3 在同一分面内，同时绘制多种几何对象
++ 6 统计变换
+    + 6.1 条形图 - geom_bar
+    + 6.2 stat
++ 7 位置调整 - position参数
+    + 7.1 fill参数
+    + 7.2 position参数
++ 8 坐标系统
++ 9 `ggplot`绘图语法
+    + 9.1 语法模板
+
+# 1 前期准备（载入函数、包、数据等） 
+```{r}
+# install.packages("tidyverse")
+library(tidyverse)
+```
+
+# 2 初识`ggplot2`
+## 2.1 `mpg` 数据集
+```{r}
+mpg
+```
+
++ 离散型变量: `manufacturer`, `model`, `trans`, `drv`, `fl`, `class`
++ 连续型变量: `displ`, `year`, `cyl`, `cty`, `hwy`
+
+## 2.2 绘制一幅 `ggplot`
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+## 2.3 `ggplot2` 绘图模板
++ ggplot()用于生成一幅画布
++ GEOM_FUNCTION 用于生成图层
+```
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+```
+
+# 3 映射图形属性  
+## 3.1 用 `aes()` 连接图形属性与变量名【形状、颜色、大小】
++ 离散型变量按类别分类，连续型变量为渐变效果
++ 可以同时映射给两个属性
++ 可以映射给一个布尔式子，则分为0,1两类
+
+离散变量
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color =  class))
+```
+连续变量
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color =  year)) 
+```
+同一变量映射给2个属性
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color =  class,size = class))
+```
+布尔型分类
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color =  displ < 5))
+```
+
+
+注：size属性——注意size有大小顺序，若和无大小顺序的变量相对应，则存在不合理之处
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+```
+
+注：形状只支持6种默认形状，若数据分类多余6种，则只展示前6种，其余不展示
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+```
+
+禁用图例
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = class), show.legend = FALSE)
+```
+
+## 3.2 人工设置图形属性
++ color使用字符串设定
++ size使用数字设定，单位是毫米
++ shape使用数字设定，从1开始，每个数字代表不同形状
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), size = 3)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), shape = 40)
+```
+
+# 4 分面
+使用 `facet_wrap()` 来绘制分面，传递给 `facet_wrap()` 的变量必须是离散型变量
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(. ~ class)
+```
+
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(class ~ .)
+```
+
+# 5 几何对象
+## 5.1 散点图、smooth图
+散点图 - geom_point
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+smooth图 - geom_smooth
+```{r}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+## 5.2 在同一分面内，对不同类型的数据分别绘制图形  
+linetype - 分别绘制，线型不同
+```{r}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+```
+
+linetype - 分别绘制，颜色不同
+```{r}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, color = drv))
+```
+
+group - 分别绘制，图形属性相同
+```{r}
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+```
+
+## 5.3 在同一分面内，同时绘制多种几何对象
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+可以将mapping写在ggplot中，不同图层共用图形属性
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
+  geom_point() + 
+  geom_smooth()
+```
+
+对不同的图层，设置不同的图形属性
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth()
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+```
+
+# 6 统计变换
+## 6.1 条形图 - geom_bar
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+```
+
+               
+               
+               
+               
+               
+               
+               
+               
+               此处有一张图
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+ggplot(data = diamonds) + 
+  stat_count(mapping = aes(x = cut))
+```
+
+## 6.2 stat
+会使用到stat的3种情形  
+
++ 1 改变默认的stat（默认的stat是count和prop，可以更改为identity）
+```{r}
+demo <- tribble(
+  ~a,      ~b,
+  "bar_1", 20,
+  "bar_2", 30,
+  "bar_3", 40
+)
+```
+
+```{r}
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = a, y = b), stat = "identity")
+```
+
++ 2 改变变量到图形属性的映射方式（从频数变为比例）
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+```
+
+绘制比例条形图，必须设置 `group = 1`
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop..))
+```
+
++ 3 更加直观地观察变量的统计性质
+```{r}
+ggplot(data = diamonds) + 
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+```
+
+# 7 位置调整 - position参数
+## 7.1 fill参数
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, colour = cut))
+```
+
+将fill属性映射到与x相同的变量
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut))
+```
+
+将fill属性映射到另一个变量，自动绘制堆积（stack）条形图
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+## 7.2 position参数
++ 1 `position = "stack"`
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "stack")
+```
+
++ 2 `position = "identity"`  
+Place each object exactly where it falls in the context of the graph. This is not very useful for bars, because it overlaps them. The identity position adjustment is more useful for 2d geoms, like points, where it is the default.
+
+通过设置透明度或不填充颜色，来观察 `position = "identity"` 的作用
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + 
+  geom_bar(alpha = 1/5, position = "identity")
+```
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, colour = clarity)) + 
+  geom_bar(fill = NA, position = "identity")
+```
+
++ 3 `position = "fill"`  
+Works like stacking, but makes each set of stacked bars the same height. This makes it easier to compare proportions across groups.
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+```
+
++ 4 `position = "dodge"`  
+Places overlapping objects directly beside one another. This makes it easier to compare individual values.
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+```
+
++ 5 `position = "jitter"`  
+通过加入振动使数据摆脱重叠
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+```
+
+`geom_jitter` 效果相同
+```{r}
+ggplot(data = mpg) + 
+  geom_jitter(mapping = aes(x = displ, y = hwy))
+```
+
+# 8 坐标系统
++ 1 `coord_flip()`  
+调换x、y轴，使图形旋转90度
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot() +
+  coord_flip()
+```
+
++ 2 `coord_quickmap()`  
+调整地图类图形的比例
+```{r}
+nz <- map_data("nz")
+
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black")
+```
+
+```{r}
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black") +
+  coord_quickmap()
+```
+
++ 3 `coord_polar()`  
+转换为极坐标系
+```{r}
+bar <- ggplot(data = diamonds) + 
+  geom_bar(
+    mapping = aes(x = cut, fill = cut), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+bar + coord_flip()
+```
+
+```{r}
+bar + coord_polar()
+```
+
+# 9 `ggplot`绘图语法
+## 9.1 语法模板
+```
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(
+     mapping = aes(<MAPPINGS>),
+     stat = <STAT>, 
+     position = <POSITION>
+  ) +
+  <COORDINATE_FUNCTION> +
+  <FACET_FUNCTION>
+```

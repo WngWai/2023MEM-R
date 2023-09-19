@@ -1,0 +1,82 @@
+# 安装tidyverse
+install.packages("tidyverse")
+# 安装ggplot2
+install.packages("ggplot2")
+
+# 加载两个packages
+library(tidyverse)
+library(ggplot2)
+
+
+
+# ---------- 第一步
+# 打印数据集
+mpg
+
+# 绘制图形
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy))
+
+
+
+# ---------- 一些练习 - 1
+# 没有geom_function会是什么？
+ggplot(data = mpg)
+
+# 查看行数和列数
+nrow(mpg)
+ncol(mpg)
+
+# drv变量是什么
+?mpg
+
+# 使用 hwy 和 cyl 绘制一张散点图
+ggplot(data = mpg) + geom_point(mapping = aes(x = cyl, y = hwy))
+
+# 使用 class 和 drv 来绘制散点图，为什么是无用的？
+ggplot(data = mpg) + geom_point(mapping = aes(x = class, y = drv))
+
+
+
+# ---------- 图形映射属性
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, color = class))  # 使用 color 来表示 class
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, size = class))  # 使用 size 来表示 class
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, alpha = class))  # 使用 alpha 来表示 class
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, shape = class))  # 使用 shape 来表示 class
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy), color = "blue")  # color 在aes函数之外，所以调整的是整个图形的颜色
+
+
+
+# ---------- 一些练习 - 2
+ggplot(data = mpg) +
+  geom_point(
+    mapping = aes(x = displ, y = hwy, color = "blue")
+  )
+
+ggplot(data = mpg) +
+  geom_point(
+    mapping = aes(x = displ, y = hwy), color = "blue"
+  )
+
+?mpg
+
+ggplot(data = mpg) +
+  geom_point(
+    mapping = aes(x = displ, y = hwy, shape = class, color = class)  # 这里将class同时给了shape和color两个图形属性
+  )
+
+?geom_point
+
+
+ggplot(data = mpg) +
+  geom_point(
+    mapping = aes(x = displ, y = hwy, stroke = 2)
+  )
+
+
+ggplot(data = mpg) +
+  geom_point(
+    mapping = aes(x = displ, y = hwy, color = displ < 5)
+  )
+
+
+# ---------- 分面

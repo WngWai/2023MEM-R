@@ -1,0 +1,1154 @@
+---
+title: "数据转换"
+output: html_notebook
+---
+
+# 目录
++ 1 前提准备
+    + 1.1 载入包
+    + 1.2 `flights` 数据集
+    + 1.3 数据类型介绍
+    + 1.4 `dplyr` 基础
++ 2 用 `filter()` 筛选行
+    + 2.1 按给定的逻辑判断筛选出符合要求的子数据集
+    + 2.2 对某个变量选取两个或以上的值
+    + 2.3 缺失值
+    + 2.4 `between()`
++ 3 用 `arrange()` 排列行
++ 4 用 `select()` 筛选列
+    + 4.1 基本用法
+    + 4.2 Helper Functions
+    + 4.3 利用 `everything()` 将列移到最前面
+    + 4.4 `rename()` 函数
++ 5 用 `mutate()` 添加列
+    + 5.1 基本用法
+    + 5.2 可以用于计算新变量的向量化运算符
++ 6 用 `summarise()` 计算分组统计量
+    + 6.1 `group_by()` 和 `summarise()` 联合使用，计算分组统计量
+    + 6.2 管道操作符 `%>%`
+    + 6.3 缺失值
+    + 6.4 计数（`count`）
+    + 6.5 聚合统计函数
+    + 6.6 依据多个变量进行分组
+    + 6.7 取消分组
++ 7 分组变换（`mutate()`, `filter()`）
+
+# 1 前提准备
+## 1.1 载入包
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+
+## 1.2 `flights` 数据集  
++ `flights` 数据集以 `tibble` 形式存储
+```{r}
+flights
+```
+```
+#> # A tibble: 336,776 × 19
+#>    year month   day dep_time sched_dep_time dep_delay arr_time
+#>   <int> <int> <int>    <int>          <int>     <dbl>    <int>
+#> 1  2013     1     1      517            515         2      830
+#> 2  2013     1     1      533            529         4      850
+#> 3  2013     1     1      542            540         2      923
+#> 4  2013     1     1      544            545        -1     1004
+#> 5  2013     1     1      554            600        -6      812
+#> 6  2013     1     1      554            558        -4      740
+#> # ... with 3.368e+05 more rows, and 12 more variables:
+#> #   sched_arr_time <int>, arr_delay <dbl>, carrier <chr>, flight <int>,
+#> #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+#> #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+```
+
++ 使用 `View` 可以观察完整的 `flights` 数据集  
+```
+View(flights)
+```
+
+## 1.3 数据类型介绍
+
++ `int` stands for integers.
+
++ `dbl` stands for doubles, or real numbers.
+
++ `chr` stands for character vectors, or strings.
+
++ `dttm` stands for date-times (a date + a time).
+
++ `lgl` stands for logical, vectors that contain only TRUE or FALSE.
+
++ `fctr` stands for factors, which R uses to represent categorical variables with fixed possible values.
+
++ `date` stands for dates.
+
+## 1.4 `dplyr` 基础
+接下来，将会接触到5种核心的 `dplyr` 函数
+
++ Pick observations by their values `filter()`.
+
++ Reorder the rows `arrange()`.
+
++ Pick variables by their names `select()`.
+
++ Create new variables with functions of existing variables `mutate()`.
+
++ Collapse many values down to a single summary `summarise()`.
+
+# 2 用 `filter()` 筛选行  
+## 2.1 按给定的逻辑判断筛选出符合要求的子数据集, 类似于 base::subset() 函数
+```{r}
+filter(flights, month == 1, day == 1)
+```
+```
+#> # A tibble: 842 × 19
+#>    year month   day dep_time sched_dep_time dep_delay arr_time
+#>   <int> <int> <int>    <int>          <int>     <dbl>    <int>
+#> 1  2013     1     1      517            515         2      830
+#> 2  2013     1     1      533            529         4      850
+#> 3  2013     1     1      542            540         2      923
+#> 4  2013     1     1      544            545        -1     1004
+#> 5  2013     1     1      554            600        -6      812
+#> 6  2013     1     1      554            558        -4      740
+#> # ... with 836 more rows, and 12 more variables: sched_arr_time <int>,
+#> #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+#> #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+#> #   minute <dbl>, time_hour <dttm>
+```
+
+```{r}
+(dec25 <- filter(flights, month == 12, day == 25))
+```
+```
+#> # A tibble: 719 × 19
+#>    year month   day dep_time sched_dep_time dep_delay arr_time
+#>   <int> <int> <int>    <int>          <int>     <dbl>    <int>
+#> 1  2013    12    25      456            500        -4      649
+#> 2  2013    12    25      524            515         9      805
+#> 3  2013    12    25      542            540         2      832
+#> 4  2013    12    25      546            550        -4     1022
+#> 5  2013    12    25      556            600        -4      730
+#> 6  2013    12    25      557            600        -3      743
+#> # ... with 713 more rows, and 12 more variables: sched_arr_time <int>,
+#> #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+#> #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+#> #   minute <dbl>, time_hour <dttm>
+```
+
+## 2.2 对某个变量选取两个或以上的值
+```{r}
+filter(flights, month == 11 | month == 12)
+```
+```{r}
+filter(flights, month %in% c(11, 12))
+```
+
+## 2.3 缺失值
++ `NA` (“not availables”) 代表缺失值，在计算中有“传染性”：对 `NA` 进行任意操作，都会返回 `NA`。
+```{r}
+NA > 5
+```
+```{r}
+10 == NA
+```
+```{r}
+NA + 10
+```
+```{r}
+NA / 2
+```
+```{r}
+NA == NA
+```
+```{r}
+x <- NA
+y <- NA
+x == y
+```
+
++ 用 `is.na()` 判断是否为缺失值
+```{r}
+is.na(x)
+```
+
+```{r}
+df <- tibble(x = c(1, NA, 3))
+filter(df, x > 1)
+```
+```
+#> # A tibble: 1 × 1
+#>       x
+#>   <dbl>
+#> 1     3
+```
+
++ `filter()` 会排除 `False` 和 `NA` 的行，仅仅返回结果为 `True` 的行。如果想要保留缺失值，需要进行显式声明
+```{r}
+filter(df, is.na(x) | x > 1)
+```
+```
+#> # A tibble: 2 × 1
+#>       x
+#>   <dbl>
+#> 1    NA
+#> 2     3
+```
+
+## 2.4 `between()`
+```{r}
+df <- tibble(x = c(1, 2, 2, 3, 4))
+filter(df, between(x, 1, 3))
+```
+```
+#> # A tibble: 4 × 1
+#>       x
+#>   <dbl>
+#> 1     1
+#> 2     2
+#> 3     2
+#> 4     3
+```
+
+# 3 用 `arrange()` 排列行
++ 按给定的列名依次对行进行排序
+```{r}
+arrange(flights, year, month, day)
+```
+```
+#> # A tibble: 336,776 × 19
+#>    year month   day dep_time sched_dep_time dep_delay arr_time
+#>   <int> <int> <int>    <int>          <int>     <dbl>    <int>
+#> 1  2013     1     1      517            515         2      830
+#> 2  2013     1     1      533            529         4      850
+#> 3  2013     1     1      542            540         2      923
+#> 4  2013     1     1      544            545        -1     1004
+#> 5  2013     1     1      554            600        -6      812
+#> 6  2013     1     1      554            558        -4      740
+#> # ... with 3.368e+05 more rows, and 12 more variables:
+#> #   sched_arr_time <int>, arr_delay <dbl>, carrier <chr>, flight <int>,
+#> #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+#> #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+```
+
++ 用 `desc()` 进行降序排列
+```{r}
+arrange(flights, desc(arr_delay))
+```
+```
+#> # A tibble: 336,776 × 19
+#>    year month   day dep_time sched_dep_time dep_delay arr_time
+#>   <int> <int> <int>    <int>          <int>     <dbl>    <int>
+#> 1  2013     1     9      641            900      1301     1242
+#> 2  2013     6    15     1432           1935      1137     1607
+#> 3  2013     1    10     1121           1635      1126     1239
+#> 4  2013     9    20     1139           1845      1014     1457
+#> 5  2013     7    22      845           1600      1005     1044
+#> 6  2013     4    10     1100           1900       960     1342
+#> # ... with 3.368e+05 more rows, and 12 more variables:
+#> #   sched_arr_time <int>, arr_delay <dbl>, carrier <chr>, flight <int>,
+#> #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+#> #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+```
+
++ 缺失值将会被放置在数据集的末尾
+```{r}
+df <- tibble(x = c(5, 2, NA))
+arrange(df, x)
+```
+```
+#> # A tibble: 3 × 1
+#>       x
+#>   <dbl>
+#> 1     2
+#> 2     5
+#> 3    NA
+```
+```{r}
+arrange(df, desc(x))
+```
+```
+#> # A tibble: 3 × 1
+#>       x
+#>   <dbl>
+#> 1     5
+#> 2     2
+#> 3    NA
+```
+
+# 4 用 `select()` 筛选列
+## 4.1 基本用法
++ 选择year、month、day列
+```{r}
+select(flights, year, month, day)
+```
+```
+#> # A tibble: 336,776 × 3
+#>    year month   day
+#>   <int> <int> <int>
+#> 1  2013     1     1
+#> 2  2013     1     1
+#> 3  2013     1     1
+#> 4  2013     1     1
+#> 5  2013     1     1
+#> 6  2013     1     1
+#> # ... with 3.368e+05 more rows
+```
+
++ 选择year和day之间的列（包括）
+```{r}
+select(flights, year:day)
+```
+```
+#> # A tibble: 336,776 × 3
+#>    year month   day
+#>   <int> <int> <int>
+#> 1  2013     1     1
+#> 2  2013     1     1
+#> 3  2013     1     1
+#> 4  2013     1     1
+#> 5  2013     1     1
+#> 6  2013     1     1
+#> # ... with 3.368e+05 more rows
+```
+
++ 选择除year和day之间的列以外的所有列（包括）
+```{r}
+select(flights, -(year:day))
+```
+```
+#> # A tibble: 336,776 × 16
+#>   dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay
+#>      <int>          <int>     <dbl>    <int>          <int>     <dbl>
+#> 1      517            515         2      830            819        11
+#> 2      533            529         4      850            830        20
+#> 3      542            540         2      923            850        33
+#> 4      544            545        -1     1004           1022       -18
+#> 5      554            600        -6      812            837       -25
+#> 6      554            558        -4      740            728        12
+#> # ... with 3.368e+05 more rows, and 10 more variables: carrier <chr>,
+#> #   flight <int>, tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+#> #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+```
+
+## 4.2 Helper Functions
++ `starts_with(x, ignore.case = TRUE)`: names starts with x.  
+
++ `ends_with(x, ignore.case = TRUE)`: names ends in x.  
+
++ `contains(x, ignore.case = TRUE)`: selects all variables whose name contains x.  
+
++ `matches(x, ignore.case = TRUE)`: selects all variables whose name matches the regular expression x.  
+
++ `num_range("x", 1:5, width = 2)`: selects all variables (numerically) from x01 to x05.  
+
++ `one_of("x", "y", "z")`: selects variables provided in a character vector.  
+
++ `everything()`: selects all variables.
+
+## 4.3 利用 `everything()` 将列移到最前面
+```{r}
+select(flights, time_hour, air_time, everything())
+```
+```
+#> # A tibble: 336,776 × 19
+#>             time_hour air_time  year month   day dep_time sched_dep_time
+#>                <dttm>    <dbl> <int> <int> <int>    <int>          <int>
+#> 1 2013-01-01 05:00:00      227  2013     1     1      517            515
+#> 2 2013-01-01 05:00:00      227  2013     1     1      533            529
+#> 3 2013-01-01 05:00:00      160  2013     1     1      542            540
+#> 4 2013-01-01 05:00:00      183  2013     1     1      544            545
+#> 5 2013-01-01 06:00:00      116  2013     1     1      554            600
+#> 6 2013-01-01 05:00:00      150  2013     1     1      554            558
+#> # ... with 3.368e+05 more rows, and 12 more variables: dep_delay <dbl>,
+#> #   arr_time <int>, sched_arr_time <int>, arr_delay <dbl>, carrier <chr>,
+#> #   flight <int>, tailnum <chr>, origin <chr>, dest <chr>, distance <dbl>,
+#> #   hour <dbl>, minute <dbl>
+```
+
+## 4.4 `rename()` 函数
+```{r}
+rename(flights, tail_num = tailnum)
+```
+```
+#> # A tibble: 336,776 × 19
+#>    year month   day dep_time sched_dep_time dep_delay arr_time
+#>   <int> <int> <int>    <int>          <int>     <dbl>    <int>
+#> 1  2013     1     1      517            515         2      830
+#> 2  2013     1     1      533            529         4      850
+#> 3  2013     1     1      542            540         2      923
+#> 4  2013     1     1      544            545        -1     1004
+#> 5  2013     1     1      554            600        -6      812
+#> 6  2013     1     1      554            558        -4      740
+#> # ... with 3.368e+05 more rows, and 12 more variables:
+#> #   sched_arr_time <int>, arr_delay <dbl>, carrier <chr>, flight <int>,
+#> #   tail_num <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+#> #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+```
+
+# 5 用 `mutate()` 添加列
+## 5.1 基本用法
++ 对已有列进行数据运算并添加为新列
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time
+)
+
+mutate(flights_sml,
+  gain = arr_delay - dep_delay,
+  speed = distance / air_time * 60
+)
+```
+```
+#> # A tibble: 336,776 × 9
+#>    year month   day dep_delay arr_delay distance air_time  gain speed
+#>   <int> <int> <int>     <dbl>     <dbl>    <dbl>    <dbl> <dbl> <dbl>
+#> 1  2013     1     1         2        11     1400      227     9   370
+#> 2  2013     1     1         4        20     1416      227    16   374
+#> 3  2013     1     1         2        33     1089      160    31   408
+#> 4  2013     1     1        -1       -18     1576      183   -17   517
+#> 5  2013     1     1        -6       -25      762      116   -19   394
+#> 6  2013     1     1        -4        12      719      150    16   288
+#> # ... with 3.368e+05 more rows
+```
+
++ 可以在同一语句中对刚增加的列进行操作
+```{r}
+mutate(flights_sml,
+  gain = arr_delay - dep_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+```
+#> # A tibble: 336,776 × 10
+#>    year month   day dep_delay arr_delay distance air_time  gain hours
+#>   <int> <int> <int>     <dbl>     <dbl>    <dbl>    <dbl> <dbl> <dbl>
+#> 1  2013     1     1         2        11     1400      227     9  3.78
+#> 2  2013     1     1         4        20     1416      227    16  3.78
+#> 3  2013     1     1         2        33     1089      160    31  2.67
+#> 4  2013     1     1        -1       -18     1576      183   -17  3.05
+#> 5  2013     1     1        -6       -25      762      116   -19  1.93
+#> 6  2013     1     1        -4        12      719      150    16  2.50
+#> # ... with 3.368e+05 more rows, and 1 more variables: gain_per_hour <dbl>
+```
+
++ 用 `transmute()` 仅仅保留新增的列
+```{r}
+transmute(flights,
+  gain = arr_delay - dep_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+```
+#> # A tibble: 336,776 × 3
+#>    gain hours gain_per_hour
+#>   <dbl> <dbl>         <dbl>
+#> 1     9  3.78          2.38
+#> 2    16  3.78          4.23
+#> 3    31  2.67         11.62
+#> 4   -17  3.05         -5.57
+#> 5   -19  1.93         -9.83
+#> 6    16  2.50          6.40
+#> # ... with 3.368e+05 more rows
+```
+
+## 5.2 可以用于计算新变量的向量化运算符
++ Arithmetic operators: `+`, `-`, `*`, `/`, `^`.
+
++ Modular arithmetic: `%/%` (integer division) and `%%` (remainder).
+```{r}
+transmute(flights,
+  dep_time,
+  hour = dep_time %/% 100,
+  minute = dep_time %% 100
+)
+```
+```
+#> # A tibble: 336,776 × 3
+#>   dep_time  hour minute
+#>      <int> <dbl>  <dbl>
+#> 1      517     5     17
+#> 2      533     5     33
+#> 3      542     5     42
+#> 4      544     5     44
+#> 5      554     5     54
+#> 6      554     5     54
+#> # ... with 3.368e+05 more rows
+```
+
++ Logs: `log()`, `log2()`, `log10()`. 
+
++ Offsets: `lead()` and `lag()` allow you to refer to leading or lagging values.
+```{r}
+(x <- 1:10)
+```
+```{r}
+lag(x)
+```
+```{r}
+lead(x)
+```
+```{r}
+# compute running differences
+x - lag(x)
+```
+```{r}
+# find when values change
+x != lag(x)
+```
+
++ Cumulative and rolling aggregates: `cumsum()`, `cumprod()`, `cummin()`, `cummax()`, `cummean()`.  
+If you need rolling aggregates (i.e. a sum computed over a rolling window), try the `RcppRoll` package.
+```{r}
+x
+```
+```{r}
+cumsum(x)
+```
+```{r}
+cummean(x)
+```
+
++ Logical comparisons, `<`, `<=`, `>`, `>=`, `!=`.
+
++ Ranking: `min_rank()`, `row_number()`, `dense_rank()`, `percent_rank()`, `cume_dist()`, `ntile()`.
+```{r}
+(y <- c(1, 2, 2, NA, 3, 4))
+```
+```{r}
+min_rank(y)
+```
+```{r}
+min_rank(desc(y))
+```
+```{r}
+row_number(y)
+```
+```{r}
+dense_rank(y)
+```
+```{r}
+percent_rank(y)
+```
+```{r}
+cume_dist(y)
+```
+
+# 6 用 `summarise()` 计算分组统计量
+## 6.1 `group_by()` 和 `summarise()` 联合使用，计算分组统计量
+```{r}
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
+```
+```
+#> # A tibble: 1 × 1
+#>   delay
+#>   <dbl>
+#> 1  12.6
+```
+
+```{r}
+by_day <- group_by(flights, year, month, day)
+summarise(by_day, delay = mean(dep_delay, na.rm = TRUE))
+```
+```
+#> Source: local data frame [365 x 4]
+#> Groups: year, month [?]
+#> 
+#>    year month   day delay
+#>   <int> <int> <int> <dbl>
+#> 1  2013     1     1 11.55
+#> 2  2013     1     2 13.86
+#> 3  2013     1     3 10.99
+#> 4  2013     1     4  8.95
+#> 5  2013     1     5  5.73
+#> 6  2013     1     6  7.15
+#> # ... with 359 more rows
+```
+
+## 6.2 管道操作符 `%>%`
++ 探索对于不同地点，平均飞行距离与平均延误时间之间的关系。可以发现，平均飞行距离为750英里时，平均延误时间达到峰值，可能是由于更长的飞行距离，为弥补延误提供了可能。
+```{r}
+by_dest <- group_by(flights, dest)
+
+delay <- summarise(by_dest,
+  count = n(),
+  dist = mean(distance, na.rm = TRUE),
+  delay = mean(arr_delay, na.rm = TRUE)
+)
+
+(delay <- filter(delay, count > 20, dest != "HNL"))
+```
+```
+#> # A tibble: 96 × 4
+#>     dest count      dist     delay
+#>    <chr> <int>     <dbl>     <dbl>
+#> 1    ABQ   254 1826.0000  4.381890
+#> 2    ACK   265  199.0000  4.852273
+#> 3    ALB   439  143.0000 14.397129
+#> 4    ATL 17215  757.1082 11.300113
+#> 5    AUS  2439 1514.2530  6.019909
+#> 6    AVL   275  583.5818  8.003831
+#> 7    BDL   443  116.0000  7.048544
+#> 8    BGR   375  378.0000  8.027933
+#> 9    BHM   297  865.9966 16.877323
+#> 10   BNA  6333  758.2135 11.812459
+#> # ... with 86 more rows
+```
+```{r}
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 1/3) +
+  geom_smooth(se = FALSE)
+```
+
++ 数据预处理涉及3个步骤：
+    + 依据目的地分组
+    + 计算分组后的平均飞行距离、平均延误时间和航班数
+    + 过滤掉夏威夷机场（平均飞行距离是其他机场的2倍以上）和航班数过少的目的地
+
+
++ 使用管道操作符 `%>%` 完成以上3个步骤
+```{r}
+delays <- flights %>% 
+  group_by(dest) %>% 
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)
+  ) %>% 
+  filter(count > 20, dest != "HNL")
+```
+
+## 6.3 缺失值
++ 缺失值传入聚合函数，也会返回缺失值
+```{r}
+flights %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+```
+```
+#> Source: local data frame [365 x 4]
+#> Groups: year, month [?]
+#> 
+#>    year month   day  mean
+#>   <int> <int> <int> <dbl>
+#> 1  2013     1     1    NA
+#> 2  2013     1     2    NA
+#> 3  2013     1     3    NA
+#> 4  2013     1     4    NA
+#> 5  2013     1     5    NA
+#> 6  2013     1     6    NA
+#> # ... with 359 more rows
+```
++ 使用 `na.rm` 参数
+```{r}
+flights %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay, na.rm = TRUE))
+```
+```
+#> Source: local data frame [365 x 4]
+#> Groups: year, month [?]
+#> 
+#>    year month   day  mean
+#>   <int> <int> <int> <dbl>
+#> 1  2013     1     1 11.55
+#> 2  2013     1     2 13.86
+#> 3  2013     1     3 10.99
+#> 4  2013     1     4  8.95
+#> 5  2013     1     5  5.73
+#> 6  2013     1     6  7.15
+#> # ... with 359 more rows
+```
++ 先行剔除 `NA` 值
+```{r}
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+```
+```
+#> Source: local data frame [365 x 4]
+#> Groups: year, month [?]
+#> 
+#>    year month   day  mean
+#>   <int> <int> <int> <dbl>
+#> 1  2013     1     1 11.44
+#> 2  2013     1     2 13.68
+#> 3  2013     1     3 10.91
+#> 4  2013     1     4  8.97
+#> 5  2013     1     5  5.73
+#> 6  2013     1     6  7.15
+#> # ... with 359 more rows
+```
+## 6.4 计数（`count`）
+在计算分组统计量的时候，需要考虑组内样本的个数（`n()`）、非缺失值的个数（`sum(!is.na(x))`）以及分组的个数  
+
++ 用 `tailnum` 区分飞机，用核密度图分析飞机的平均延误时间分布情况
+```{r}
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay)
+  )
+
+delays
+```
+```
+#> # A tibble: 4,037 × 2
+#>    tailnum      delay
+#>      <chr>      <dbl>
+#> 1   D942DN 31.5000000
+#> 2   N0EGMQ  9.9829545
+#> 3   N10156 12.7172414
+#> 4   N102UW  2.9375000
+#> 5   N103US -6.9347826
+#> 6   N104UW  1.8043478
+#> 7   N10575 20.6914498
+#> 8   N105UW -0.2666667
+#> 9   N107US -5.7317073
+#> 10  N108UW -1.2500000
+#> # ... with 4,027 more rows
+```
+```{r}
+ggplot(data = delays, mapping = aes(x = delay)) + 
+  geom_freqpoly(binwidth = 10)
+```
+
++ 用 `n()` 计算组内样本个数，从散点图可以看出，飞行次数少的飞机，平均延误时间的变异程度更大
+```{r}
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+
+delays
+```
+```
+#> # A tibble: 4,037 × 3
+#>    tailnum      delay     n
+#>      <chr>      <dbl> <int>
+#> 1   D942DN 31.5000000     4
+#> 2   N0EGMQ  9.9829545   352
+#> 3   N10156 12.7172414   145
+#> 4   N102UW  2.9375000    48
+#> 5   N103US -6.9347826    46
+#> 6   N104UW  1.8043478    46
+#> 7   N10575 20.6914498   269
+#> 8   N105UW -0.2666667    45
+#> 9   N107US -5.7317073    41
+#> 10  N108UW -1.2500000    60
+#> # ... with 4,027 more rows
+```
+```{r}
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+```
+
++ 利用 `filter()` 筛选出飞行次数大于25的飞机，分析它们的延误情况
+```{r}
+delays %>% 
+  filter(n > 25) %>% 
+  ggplot(mapping = aes(x = n, y = delay)) + 
+    geom_point(alpha = 1/10)
+```
+
++ `ba` 代表击打成功率， `ab` 代表击打次数，击打成功率与击打数正相关，可能是因为球队倾向于让成功率高的球员拥有更多出场机会
+```{r}
+# Convert to a tibble so it prints nicely
+batting <- as_tibble(Lahman::Batting)
+
+batters <- batting %>% 
+  group_by(playerID) %>% 
+  summarise(
+    ba = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
+    ab = sum(AB, na.rm = TRUE)
+  )
+
+batters %>% 
+  filter(ab > 100) %>% 
+  ggplot(mapping = aes(x = ab, y = ba)) +
+    geom_point() + 
+    geom_smooth(se = FALSE)
+```
+
++ 依据 `ba` 进行降序排列，可以看出，击打成功率最高的球员，击打次数只有一次，纯粹是由于运气而非技术
+```{r}
+batters %>% 
+  arrange(desc(ba))
+```
+```
+#> # A tibble: 18,659 × 3
+#>    playerID    ba    ab
+#>       <chr> <dbl> <int>
+#> 1 abramge01     1     1
+#> 2 banisje01     1     1
+#> 3 bartocl01     1     1
+#> 4  bassdo01     1     1
+#> 5 birasst01     1     2
+#> 6 bruneju01     1     1
+#> # ... with 1.865e+04 more rows
+```
+
+## 6.5 聚合统计函数
++ Measures of location: `mean(x)`, `median(x)`.
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    avg_delay1 = mean(arr_delay),
+    avg_delay2 = mean(arr_delay[arr_delay > 0]) # the average positive delay
+  )
+```
+```
+#> Source: local data frame [365 x 5]
+#> Groups: year, month [?]
+#> 
+#>    year month   day avg_delay1 avg_delay2
+#>   <int> <int> <int>      <dbl>      <dbl>
+#> 1  2013     1     1      12.65       32.5
+#> 2  2013     1     2      12.69       32.0
+#> 3  2013     1     3       5.73       27.7
+#> 4  2013     1     4      -1.93       28.3
+#> 5  2013     1     5      -1.53       22.6
+#> 6  2013     1     6       4.24       24.4
+#> # ... with 359 more rows
+```
+
++ Measures of spread: `sd(x)`, `IQR(x)`, `mad(x)`.
+```{r}
+# Why is distance to some destinations more variable than to others?
+not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(distance_sd = sd(distance)) %>% 
+  arrange(desc(distance_sd))
+```
+```
+#> # A tibble: 104 × 2
+#>    dest distance_sd
+#>   <chr>       <dbl>
+#> 1   EGE       10.54
+#> 2   SAN       10.35
+#> 3   SFO       10.22
+#> 4   HNL       10.00
+#> 5   SEA        9.98
+#> 6   LAS        9.91
+#> # ... with 98 more rows
+```
++ Measures of rank: `min(x)`, `quantile(x, 0.25)`, `max(x)`. 
+```{r}
+# When do the first and last flights leave each day?
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    first = min(dep_time),
+    last = max(dep_time)
+  )
+```
+```
+#> Source: local data frame [365 x 5]
+#> Groups: year, month [?]
+#> 
+#>    year month   day first  last
+#>   <int> <int> <int> <int> <int>
+#> 1  2013     1     1   517  2356
+#> 2  2013     1     2    42  2354
+#> 3  2013     1     3    32  2349
+#> 4  2013     1     4    25  2358
+#> 5  2013     1     5    14  2357
+#> 6  2013     1     6    16  2355
+#> # ... with 359 more rows
+```
+
++ Measures of position: `first(x)`, `nth(x, 2)`, `last(x)`. 
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    first_dep = first(dep_time), 
+    last_dep = last(dep_time)
+  )
+```
+```
+#> Source: local data frame [365 x 5]
+#> Groups: year, month [?]
+#> 
+#>    year month   day first_dep last_dep
+#>   <int> <int> <int>     <int>    <int>
+#> 1  2013     1     1       517     2356
+#> 2  2013     1     2        42     2354
+#> 3  2013     1     3        32     2349
+#> 4  2013     1     4        25     2358
+#> 5  2013     1     5        14     2357
+#> 6  2013     1     6        16     2355
+#> # ... with 359 more rows
+```
+
+同样的效果，可以通过以下方法实现，并且会保留所有的变量，注意 `mutate()`, `min_rank`, `filter()` 在这里的作用
+```{r}
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  mutate(r = min_rank(desc(dep_time))) %>% 
+  filter(r %in% range(r))
+```
+```
+#> Source: local data frame [770 x 20]
+#> Groups: year, month, day [365]
+#> 
+#>    year month   day dep_time sched_dep_time dep_delay arr_time
+#>   <int> <int> <int>    <int>          <int>     <dbl>    <int>
+#> 1  2013     1     1      517            515         2      830
+#> 2  2013     1     1     2356           2359        -3      425
+#> 3  2013     1     2       42           2359        43      518
+#> 4  2013     1     2     2354           2359        -5      413
+#> 5  2013     1     3       32           2359        33      504
+#> 6  2013     1     3     2349           2359       -10      434
+#> # ... with 764 more rows, and 13 more variables: sched_arr_time <int>,
+#> #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
+#> #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+#> #   minute <dbl>, time_hour <dttm>, r <int>
+```
+
++ Counts: `count()`, `n()`, `sum(!is.na(x))`, `n_distinct(x)`.
+```{r}
+# Which destinations have the most carriers?
+not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(carriers = n_distinct(carrier)) %>% 
+  arrange(desc(carriers))
+```
+```
+#> # A tibble: 104 × 2
+#>    dest carriers
+#>   <chr>    <int>
+#> 1   ATL        7
+#> 2   BOS        7
+#> 3   CLT        7
+#> 4   ORD        7
+#> 5   TPA        7
+#> 6   AUS        6
+#> # ... with 98 more rows
+```
+
+强大的 `count()` 函数，此处计算每个机场作为目的地的航班数
+```{r}
+not_cancelled %>% 
+  count(dest)
+```
+```
+#> # A tibble: 104 × 2
+#>    dest     n
+#>   <chr> <int>
+#> 1   ABQ   254
+#> 2   ACK   264
+#> 3   ALB   418
+#> 4   ANC     8
+#> 5   ATL 16837
+#> 6   AUS  2411
+#> # ... with 98 more rows
+```
+
+`count()` 可以用于加权计数，此处计算每架飞机的总飞行里程
+```{r}
+not_cancelled %>% 
+  count(tailnum, wt = distance)
+```
+```
+#> # A tibble: 4,037 × 2
+#>   tailnum      n
+#>     <chr>  <dbl>
+#> 1  D942DN   3418
+#> 2  N0EGMQ 239143
+#> 3  N10156 109664
+#> 4  N102UW  25722
+#> 5  N103US  24619
+#> 6  N104UW  24616
+#> # ... with 4,031 more rows
+```
+
++ Counts and proportions of logical values: `sum(x > 10)`, `mean(y == 0)`. `sum(x)` gives the number of `TRUEs` in `x`, and `mean(x)` gives the proportion.
+```{r}
+# How many flights left before 5am? (these usually indicate delayed
+# flights from the previous day)
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(n_early = sum(dep_time < 500))
+```
+```
+#> Source: local data frame [365 x 4]
+#> Groups: year, month [?]
+#> 
+#>    year month   day n_early
+#>   <int> <int> <int>   <int>
+#> 1  2013     1     1       0
+#> 2  2013     1     2       3
+#> 3  2013     1     3       4
+#> 4  2013     1     4       3
+#> 5  2013     1     5       3
+#> 6  2013     1     6       2
+#> # ... with 359 more rows
+```
+
+```{r}
+# What proportion of flights are delayed by more than an hour?
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(hour_perc = mean(arr_delay > 60))
+```
+```
+#> Source: local data frame [365 x 4]
+#> Groups: year, month [?]
+#> 
+#>    year month   day hour_perc
+#>   <int> <int> <int>     <dbl>
+#> 1  2013     1     1    0.0722
+#> 2  2013     1     2    0.0851
+#> 3  2013     1     3    0.0567
+#> 4  2013     1     4    0.0396
+#> 5  2013     1     5    0.0349
+#> 6  2013     1     6    0.0470
+#> # ... with 359 more rows
+```
+
+## 6.6 依据多个变量进行分组
+创建依据多个变量的分组后，每一次 `summarise`都会剥离一层分组变量  
+
++ 依据`year`, `month`, `day` 三个变量分组
+```{r}
+daily <- group_by(flights, year, month, day)
+(per_day   <- summarise(daily, flights = n()))
+```
+```
+#> Source: local data frame [365 x 4]
+#> Groups: year, month [?]
+#> 
+#>    year month   day flights
+#>   <int> <int> <int>   <int>
+#> 1  2013     1     1     842
+#> 2  2013     1     2     943
+#> 3  2013     1     3     914
+#> 4  2013     1     4     915
+#> 5  2013     1     5     720
+#> 6  2013     1     6     832
+#> # ... with 359 more rows
+```
+
++ `summarise` 后，剥离 `day` 变量
+```{r}
+(per_month <- summarise(per_day, flights = sum(flights)))
+```
+```
+#> Source: local data frame [12 x 3]
+#> Groups: year [?]
+#> 
+#>    year month flights
+#>   <int> <int>   <int>
+#> 1  2013     1   27004
+#> 2  2013     2   24951
+#> 3  2013     3   28834
+#> 4  2013     4   28330
+#> 5  2013     5   28796
+#> 6  2013     6   28243
+#> # ... with 6 more rows
+```
+
++ `summarise` 后，剥离 `month` 变量
+```{r}
+(per_year  <- summarise(per_month, flights = sum(flights)))
+```
+```
+#> # A tibble: 1 × 2
+#>    year flights
+#>   <int>   <int>
+#> 1  2013  336776
+```
+
+## 6.7 取消分组
+```{r}
+daily %>% 
+  ungroup() %>%             # no longer grouped by date
+  summarise(flights = n())  # all flights
+```
+```
+#> # A tibble: 1 × 1
+#>   flights
+#>     <int>
+#> 1  336776
+```
+
+# 7 分组变换（`mutate()`, `filter()`）
++ 找出每个分组中情况最差的成员
+```{r}
+flights_sml %>% 
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
+```
+```
+#> Source: local data frame [3,306 x 7]
+#> Groups: year, month, day [365]
+#> 
+#>    year month   day dep_delay arr_delay distance air_time
+#>   <int> <int> <int>     <dbl>     <dbl>    <dbl>    <dbl>
+#> 1  2013     1     1       853       851      184       41
+#> 2  2013     1     1       290       338     1134      213
+#> 3  2013     1     1       260       263      266       46
+#> 4  2013     1     1       157       174      213       60
+#> 5  2013     1     1       216       222      708      121
+#> 6  2013     1     1       255       250      589      115
+#> # ... with 3,300 more rows
+```
+
++ 找出满足一定条件的组别
+```{r}
+popular_dests <- flights %>% 
+  group_by(dest) %>% 
+  filter(n() > 365)
+
+popular_dests
+```
+```
+#> Source: local data frame [332,577 x 19]
+#> Groups: dest [77]
+#> 
+#>    year month   day dep_time sched_dep_time dep_delay arr_time
+#>   <int> <int> <int>    <int>          <int>     <dbl>    <int>
+#> 1  2013     1     1      517            515         2      830
+#> 2  2013     1     1      533            529         4      850
+#> 3  2013     1     1      542            540         2      923
+#> 4  2013     1     1      544            545        -1     1004
+#> 5  2013     1     1      554            600        -6      812
+#> 6  2013     1     1      554            558        -4      740
+#> # ... with 3.326e+05 more rows, and 12 more variables:
+#> #   sched_arr_time <int>, arr_delay <dbl>, carrier <chr>, flight <int>,
+#> #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+#> #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+```
+
++ 分组计算统计量
+```{r}
+popular_dests %>% 
+  filter(arr_delay > 0) %>% 
+  mutate(prop_delay = arr_delay / sum(arr_delay)) %>% 
+  select(year:day, dest, arr_delay, prop_delay)
+```
+```
+#> Source: local data frame [131,106 x 6]
+#> Groups: dest [77]
+#> 
+#>    year month   day  dest arr_delay prop_delay
+#>   <int> <int> <int> <chr>     <dbl>      <dbl>
+#> 1  2013     1     1   IAH        11   1.11e-04
+#> 2  2013     1     1   IAH        20   2.01e-04
+#> 3  2013     1     1   MIA        33   2.35e-04
+#> 4  2013     1     1   ORD        12   4.24e-05
+#> 5  2013     1     1   FLL        19   9.38e-05
+#> 6  2013     1     1   ORD         8   2.83e-05
+#> # ... with 1.311e+05 more rows
+```

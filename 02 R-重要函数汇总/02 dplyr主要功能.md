@@ -6,7 +6,7 @@
 [select()](dplyr/select().md) 按照**指定列**，形成新的数据框
 
 #### 对行/列数据进行操作
-[arrange()](dplyr/arrange()].md) 对df中行数据按**指定列中数据进行重新排序**
+[arrange()](dplyr/arrange().md) 对df中行数据按**指定列中数据进行重新排序**
 
 [mutate()](dplyr/mutate().md) **创建或修改**新的列（变量）
 

@@ -1,4 +1,4 @@
-`对通过readr导入进的数据集进行批量清洗，合并多个数据集数据，进行统计指标分析，最终实现指标输出。`
+`对通过readr导入进的数据集进行批量清洗，合并多个数据集数据，再进行统计指标分析，最终实现指标输出。`
 ### 数据的基础处理
 #### 筛选行/列
 [filter()](dplyr/filter().md) 处理数据框数据（df），筛选满足条件的**行**
@@ -35,18 +35,18 @@
 [group_by()](dplyr/group_by().md) 指定列进行**分组**，分组后再summarize会**保留**分组列
 
 ungroup() **取消**分组
-
-
+<br />
+<br />
 [summarize()](dplyr/summarize().md) **统计分析**列数据
-
-
+<br />
+<br />
 [n()](dplyr/n().md) 计算**行数**
 
 [count()](dplyr/count().md)计算**唯一值**出现**次数**
 
 [n_distinct()](dplyr/n_distinct().md)计算**唯一值数量**，注意唯一值数量指种类，跟上面的唯一值次数指频数不同
-
-
+<br />
+<br />
 [min_rank()](dplyr/min_rank().md) 最小值**排序序号**
 
 

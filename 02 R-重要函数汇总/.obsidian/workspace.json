@@ -1,0 +1,199 @@
+{
+  "main": {
+    "id": "89ab1584dbc09226",
+    "type": "split",
+    "children": [
+      {
+        "id": "4dda21318fc42217",
+        "type": "tabs",
+        "dimension": 78.42639593908629,
+        "children": [
+          {
+            "id": "fffab797dbafbf05",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "03 ggplot2主要功能.md",
+                "mode": "source",
+                "source": false
+              }
+            },
+            "group": "4c997e58282ca8ee"
+          }
+        ]
+      },
+      {
+        "id": "4f15d762c66d5772",
+        "type": "tabs",
+        "dimension": 21.573604060913702,
+        "children": [
+          {
+            "id": "cc744ef142f72398",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "03 ggplot2主要功能.md"
+              }
+            },
+            "group": "4c997e58282ca8ee"
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "e3c860a9bcf69313",
+    "type": "split",
+    "children": [
+      {
+        "id": "e08450081f455e74",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cd614ca487c28648",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "bd5dff68e1920604",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "2988d457fba1d736",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "a6936085ccf9bde7",
+    "type": "split",
+    "children": [
+      {
+        "id": "d557d6bd56976983",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "11fafd66db9a66db",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "03 ggplot2主要功能.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "f13004be6e9a91fa",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "03 ggplot2主要功能.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "d9a77d74308654ed",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "c0132076348e8969",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "03 ggplot2主要功能.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false
+    }
+  },
+  "active": "fffab797dbafbf05",
+  "lastOpenFiles": [
+    "02 dplyr主要功能.md",
+    "01 readr主要功能.md",
+    "00 基础知识.md",
+    "基础内容/array().md",
+    "基础内容/rep().md",
+    "基础内容/seq().md",
+    "基础内容/length().md",
+    "基础内容/names().md",
+    "基础内容/expand.grid().md",
+    "基础内容/向量的索引.md",
+    "基础内容/set_names().md",
+    "基础内容/nan().md",
+    "基础内容/is.nan().md",
+    "基础内容/特殊值.md",
+    "基础内容/as.vector().md",
+    "(基础内容/as.vector.md",
+    "(基础内容/as.logical().md",
+    "(基础内容",
+    "rownames().md",
+    "基础内容/c().md",
+    "基础内容/aslogical().md",
+    "基础内容/as.logical().md",
+    "基础内容/as.numeric().md",
+    "tidyverse/管道操作符.md",
+    "tidyverse/tibble().md",
+    "tidyverse/Tidyverse.md",
+    "03 ggplot2主要功能.md"
+  ]
+}

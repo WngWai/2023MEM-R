@@ -7,10 +7,13 @@
 
 #### 对行/列数据进行操作
 [arrange()](dplyr/arrange()].md) 对df中行数据按**指定列中数据进行重新排序**
+
 [mutate()](dplyr/mutate().md) **创建或修改**新的列（变量）
+
 [transmute()](dplyr/transmute().md) 只**保留新列**
 
 [lag()](dplyr/lag().md) 和[lead()](dplyr/lead().md)**偏移**函数，后移和前移
+
 [distinct()](dplyr/distinct().md) **去除重复观测值**
 
 
